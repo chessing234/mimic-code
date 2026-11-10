@@ -110,6 +110,14 @@ find "$MIMIC_DIR" -type f \( -name '*.csv' -o -name '*.csv.gz' \) | sort | while
       (note) ;; # OK
       (*) continue;
     esac
+    # Use the original archive when its extracted copy is also present.
+    case "$FILE" in
+      (*.csv)
+        if [ -f "$FILE.gz" ] && [ ! -L "$FILE.gz" ]; then
+            continue
+        fi
+        ;;
+    esac
     FILE_SQL=$(printf '%s' "$FILE" | sed "s/'/''/g")
     echo "Loading $FILE .."
     OUTPUT=$(duckdb "$OUTFILE" 2>&1 <<-EOSQL
